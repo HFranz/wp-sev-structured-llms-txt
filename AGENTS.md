@@ -38,8 +38,9 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   Kategorie). Leere Sektionen werden komplett weggelassen. Über den Filter `sevllms_generated_content`
   überschreibbar.
 - `includes/class-cache.php` – `Cache`: Transient-Cache (`sevllms_cache`, 12h TTL als Backstop) für den generierten
-  Content. Wird bei `save_post`/`delete_post` (post & page), Kategorie-Änderungen und beim Speichern der
-  Plugin-Settings automatisch geleert.
+  Content. Wird bei `save_post`/`delete_post` (post & page) und Kategorie-Änderungen automatisch geleert. Die
+  Invalidierung beim Speichern der Plugin-Settings sitzt bewusst *nicht* hier, sondern in
+  `Admin_Settings::maybe_clear_cache_after_save()` (siehe unten).
 - `includes/class-rewrite.php` – `Rewrite`: registriert die Rewrite-Rule `^llms\.txt$` und liefert den (gecachten)
   Content bei `template_redirect` aus, als `text/plain`. `flush_current_site()` ist die statische Hilfsfunktion,
   die beim Aktivieren (pro Site, siehe Bootstrap) die Rewrite-Regeln neu registriert und flusht.
@@ -48,7 +49,12 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
 - `includes/class-admin-settings.php` – Settings-Seite unter **Settings → llms.txt**: Tagline-Feld, per Drag&Drop
   sortierbare Kategorie-Checkliste (jQuery UI Sortable, WP-Core-Bundle, kein externes JS), auf Multisite ein
   Alternate-Sites-Repeater (reines Vanilla-JS Add/Remove, kein Build-Step), Live-Vorschau und ein
-  „Cache leeren"-Button (`admin-post.php?action=sevllms_purge_cache`).
+  „Cache leeren"-Button (`admin-post.php?action=sevllms_purge_cache`). `maybe_clear_cache_after_save()` hängt an
+  `admin_init` und leert den Cache, sobald `options.php` nach dem Speichern mit `?page=<slug>&settings-updated=…`
+  auf diese Seite zurückleitet — unabhängig davon, ob es der allererste Save eines Feldes ist (dann feuert WP
+  `add_option_{$option}` statt `update_option_{$option}`) oder ob eine Checkbox-Liste komplett leer abgeschickt
+  wurde (dann feuert für dieses Feld gar kein Options-Hook). Ein Hook auf `update_option_{$option}` je Setting in
+  `Cache::register()` würde beide Fälle verpassen, deshalb sitzt die Invalidierung hier statt dort.
 
 **Datenfluss:** Request auf `/llms.txt` → `Rewrite::maybe_serve()` → `Cache::get()` (Cache-Hit: sofort ausliefern)
 → bei Cache-Miss `Generator::generate()` → `Content_Selector` + `Alternate_Sites` + `Description_Resolver` bauen
@@ -80,7 +86,10 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
   jeder Site (Multisite-Loop analog zu `sev-calculate-price-for-booking-calendar/uninstall.php`).
 
 ## Beim Ändern von Code beachten
-- Neue Cache-Invalidierungs-Hooks gehören in `Cache::register()`, nicht verstreut in anderen Klassen.
+- Neue Cache-Invalidierungs-Hooks für Content-Änderungen (Posts, Terms, …) gehören in `Cache::register()`. Die
+  Ausnahme ist die Settings-Seite selbst: dort lieber am `settings-updated`-Redirect-Flag festmachen (siehe
+  `Admin_Settings::maybe_clear_cache_after_save()`) statt an `update_option_{$option}`, aus den oben genannten
+  Gründen (verpasster erster Save, verpasste leere Checkbox-Listen).
 - Änderungen an der Gruppierungs-/Reihenfolge-Logik (`Content_Selector`, `Category_Order`) immer mit Tests
   absichern, da sie die sichtbare Struktur der ausgelieferten `llms.txt` direkt bestimmen.
 - Neue SEO-Plugin-Integrationen (weitere Meta-Description-Quellen) gehören in

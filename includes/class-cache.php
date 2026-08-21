@@ -24,6 +24,12 @@ class Cache {
 	/**
 	 * Registers the hooks that invalidate the cache.
 	 *
+	 * Plugin settings are invalidated separately, in
+	 * Admin_Settings::maybe_clear_cache_after_save(), rather than via
+	 * update_option_{$option} here: that hook does not fire on a setting's
+	 * very first save (WordPress calls add_option() instead in that case),
+	 * so relying on it alone would leave a stale cache after the first save.
+	 *
 	 * @return void
 	 */
 	public function register(): void {
@@ -33,9 +39,6 @@ class Cache {
 		add_action( 'edited_category', array( $this, 'delete' ) );
 		add_action( 'created_category', array( $this, 'delete' ) );
 		add_action( 'delete_category', array( $this, 'delete' ) );
-		add_action( 'update_option_' . Category_Order::OPTION_NAME, array( $this, 'delete' ) );
-		add_action( 'update_option_' . Generator::OPTION_TAGLINE, array( $this, 'delete' ) );
-		add_action( 'update_option_' . Alternate_Sites::OPTION_NAME, array( $this, 'delete' ) );
 	}
 
 	/**

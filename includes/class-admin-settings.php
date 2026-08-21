@@ -41,6 +41,7 @@ class Admin_Settings {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_init', array( $this, 'maybe_clear_cache_after_save' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_sevllms_purge_cache', array( $this, 'handle_purge_cache' ) );
 	}
@@ -150,6 +151,29 @@ class Admin_Settings {
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * Clears the cache after the Settings API redirects back here with
+	 * "settings-updated" set, so the next /llms.txt request (and the preview
+	 * on this page) reflects the just-saved settings immediately.
+	 *
+	 * Deliberately not tied to update_option_{$option} in Cache::register():
+	 * that hook does not fire on a setting's very first save, and does not
+	 * fire at all when an unchecked checkbox list submits no value.
+	 *
+	 * @return void
+	 */
+	public function maybe_clear_cache_after_save(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only check of our own already nonce-verified redirect flag from options.php; nothing is written here.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( self::PAGE_SLUG !== $page || ! isset( $_GET['settings-updated'] ) ) {
+			return;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		( new Cache() )->delete();
 	}
 
 	/**
