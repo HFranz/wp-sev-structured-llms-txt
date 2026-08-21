@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: HFranz/github-workflows/.github/workflows/build-and-deploy-to-wporg.yml@main
+    with:
+      plugin-slug: sev-structured-llms-txt
+      deploy: true
+    secrets: inherit
