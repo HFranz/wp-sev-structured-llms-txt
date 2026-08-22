@@ -48,8 +48,13 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   Invalidierung beim Speichern der Plugin-Settings sitzt bewusst *nicht* hier, sondern in
   `Admin_Settings::maybe_clear_cache_after_save()` (siehe unten).
 - `includes/class-rewrite.php` – `Rewrite`: registriert die Rewrite-Rule `^llms\.txt$` und liefert den (gecachten)
-  Content bei `template_redirect` aus, als `text/plain`. `flush_current_site()` ist die statische Hilfsfunktion,
-  die beim Aktivieren (pro Site, siehe Bootstrap) die Rewrite-Regeln neu registriert und flusht.
+  Content bei `template_redirect` aus, als `text/plain`. `prevent_canonical_redirect()` hängt am Filter
+  `redirect_canonical` und liefert `false`, sobald unsere Query-Var gesetzt ist — sonst hängt WordPress an
+  `/llms.txt` einen Trailing Slash an und redirected auf `/llms.txt/` (dasselbe Problem wie bei
+  `/.well-known/security.txt`, siehe
+  https://wordpress.org/support/topic/well-known-security-txt-redirects-301-403s-redirect_canonical-fix/).
+  `flush_current_site()` ist die statische Hilfsfunktion, die beim Aktivieren (pro Site, siehe Bootstrap) die
+  Rewrite-Regeln neu registriert und flusht.
 - `includes/class-post-meta.php` – `Post_Meta`: „Exclude from llms.txt"-Checkbox-Metabox auf `post` und `page`
   (Postmeta `_sevllms_exclude`).
 - `includes/class-admin-settings.php` – Settings-Seite unter **Settings → llms.txt**: Tagline-Feld, per Drag&Drop

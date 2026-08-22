@@ -36,6 +36,7 @@ class Rewrite {
 	public function register(): void {
 		add_action( 'init', array( $this, 'add_rewrite_rule' ) );
 		add_filter( 'query_vars', array( $this, 'add_query_var' ) );
+		add_filter( 'redirect_canonical', array( $this, 'prevent_canonical_redirect' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_serve' ) );
 	}
 
@@ -58,6 +59,24 @@ class Rewrite {
 		$vars[] = self::QUERY_VAR;
 
 		return $vars;
+	}
+
+	/**
+	 * Stops WordPress from redirecting /llms.txt to /llms.txt/. Without a
+	 * recognized file extension, redirect_canonical() otherwise treats our
+	 * virtual URL like a page permalink and appends a trailing slash (the
+	 * same issue reported for /.well-known/security.txt, see
+	 * https://wordpress.org/support/topic/well-known-security-txt-redirects-301-403s-redirect_canonical-fix/).
+	 *
+	 * @param string|false $redirect_url The redirect URL WordPress computed, or false.
+	 * @return string|false
+	 */
+	public function prevent_canonical_redirect( $redirect_url ) {
+		if ( get_query_var( self::QUERY_VAR ) ) {
+			return false;
+		}
+
+		return $redirect_url;
 	}
 
 	/**
