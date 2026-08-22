@@ -11,6 +11,7 @@
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: sev-structured-llms-txt
+ * Domain Path: /languages
  *
  * php version 8.0
  *

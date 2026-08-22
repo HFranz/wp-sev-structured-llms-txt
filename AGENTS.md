@@ -84,6 +84,12 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
 - Keine Build-Pipeline für JS/CSS – die Admin-Seite nutzt reines Vanilla-JS/jQuery-UI-Sortable ohne Bundler.
 - `uninstall.php` entfernt alle `sevllms_*`-Optionen, den Cache-Transient und die `_sevllms_exclude`-Postmeta auf
   jeder Site (Multisite-Loop analog zu `sev-calculate-price-for-booking-calendar/uninstall.php`).
+- `languages/sev-structured-llms-txt.pot` nach Änderungen an übersetzbaren Strings neu erzeugen mit
+  `wp i18n make-pot . languages/sev-structured-llms-txt.pot --domain=sev-structured-llms-txt --exclude=tests,vendor,.git,.github`.
+  Die mitgelieferte `de_DE`-Übersetzung (`languages/sev-structured-llms-txt-de_DE.po`, kompiliert zu `.mo` via
+  `wp i18n make-mo languages/`) wird bei Änderungen manuell nachgezogen. Beide `.po`/`.mo` sind über `.distignore`
+  vom ausgelieferten ZIP ausgeschlossen — nur die `.pot` ist Teil des Pakets; auf WP.org werden Übersetzungen über
+  translate.wordpress.org gepflegt (analog zur Korrektur in `sev-simple-hreflang` 1.2.0).
 
 ## Beim Ändern von Code beachten
 - Neue Cache-Invalidierungs-Hooks für Content-Änderungen (Posts, Terms, …) gehören in `Cache::register()`. Die

@@ -1,0 +1,131 @@
+# Copyright (C) 2026 Heinrich Franz
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: SEV Structured llms.txt 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/sev-structured-llms-txt\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-22T11:00:46+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: sev-structured-llms-txt\n"
+
+#. Plugin Name of the plugin
+#: sev-structured-llms-txt.php
+msgid "SEV Structured llms.txt"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: sev-structured-llms-txt.php
+msgid "https://github.com/HFranz/wp-sev-structured-llms-txt"
+msgstr ""
+
+#. Description of the plugin
+#: sev-structured-llms-txt.php
+msgid "Generates a structured llms.txt at /llms.txt, listing pages and posts (grouped by category) so AI assistants and LLMs can discover your site's content. Works on single sites and WordPress Multisite, network-wide or per site."
+msgstr ""
+
+#. Author of the plugin
+#: sev-structured-llms-txt.php
+msgid "Heinrich Franz"
+msgstr ""
+
+#. Author URI of the plugin
+#: sev-structured-llms-txt.php
+msgid "https://sevmatic.com"
+msgstr ""
+
+#: includes/class-admin-settings.php:56
+#: includes/class-admin-settings.php:57
+#: includes/class-admin-settings.php:239
+#: includes/class-post-meta.php:46
+msgid "llms.txt"
+msgstr ""
+
+#. translators: %s: the llms.txt URL.
+#: includes/class-admin-settings.php:244
+#, php-format
+msgid "Available at %s."
+msgstr ""
+
+#: includes/class-admin-settings.php:256
+msgid "Save settings"
+msgstr ""
+
+#: includes/class-admin-settings.php:265
+msgid "Clear cache"
+msgstr ""
+
+#: includes/class-admin-settings.php:268
+msgid "Preview"
+msgstr ""
+
+#: includes/class-admin-settings.php:282
+msgid "Tagline"
+msgstr ""
+
+#: includes/class-admin-settings.php:284
+msgid "Shown as the blockquote below the site title. Leave empty to use the site tagline."
+msgstr ""
+
+#: includes/class-admin-settings.php:298
+msgid "Post categories"
+msgstr ""
+
+#: includes/class-admin-settings.php:300
+msgid "Choose which categories appear as a \"Posts\" subsection, and drag to set their order."
+msgstr ""
+
+#: includes/class-admin-settings.php:330
+msgid "Alternate language sites"
+msgstr ""
+
+#: includes/class-admin-settings.php:332
+msgid "Link to this llms.txt of other sites in this network (e.g. one site per language). The label is derived from the target site's language unless you set one."
+msgstr ""
+
+#: includes/class-admin-settings.php:339
+msgid "Add site"
+msgstr ""
+
+#: includes/class-admin-settings.php:361
+msgid "— Select a site —"
+msgstr ""
+
+#: includes/class-admin-settings.php:368
+msgid "Label (optional, e.g. English)"
+msgstr ""
+
+#: includes/class-admin-settings.php:369
+msgid "Remove"
+msgstr ""
+
+#: includes/class-admin-settings.php:381
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/class-generator.php:106
+msgid "## Pages"
+msgstr ""
+
+#. translators: 1: language label, e.g. "English", 2: URL.
+#: includes/class-generator.php:132
+#, php-format
+msgid "> %1$s version: %2$s"
+msgstr ""
+
+#: includes/class-generator.php:150
+msgid "## Posts"
+msgstr ""
+
+#: includes/class-generator.php:154
+msgid "More posts"
+msgstr ""
+
+#: includes/class-post-meta.php:66
+msgid "Exclude from llms.txt"
+msgstr ""
