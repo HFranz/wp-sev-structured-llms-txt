@@ -23,8 +23,11 @@ class Content_Selector {
 
 	private Category_Order $category_order;
 
-	public function __construct( ?Category_Order $category_order = null ) {
-		$this->category_order = $category_order ?? new Category_Order();
+	private Noindex_Resolver $noindex_resolver;
+
+	public function __construct( ?Category_Order $category_order = null, ?Noindex_Resolver $noindex_resolver = null ) {
+		$this->category_order   = $category_order ?? new Category_Order();
+		$this->noindex_resolver = $noindex_resolver ?? new Noindex_Resolver();
 	}
 
 	/**
@@ -108,13 +111,19 @@ class Content_Selector {
 	}
 
 	/**
-	 * Whether a post/page has not been excluded via the "llms.txt" checkbox.
+	 * Whether a post/page has not been excluded via the "llms.txt" checkbox
+	 * and has not been marked "noindex" by an SEO plugin: a page hidden from
+	 * search engines is presumably also not meant to be listed for LLMs.
 	 *
 	 * @param \WP_Post $post The post or page.
 	 * @return bool
 	 */
 	private function is_included( \WP_Post $post ): bool {
-		return '1' !== get_post_meta( $post->ID, Post_Meta::META_KEY, true );
+		if ( '1' === get_post_meta( $post->ID, Post_Meta::META_KEY, true ) ) {
+			return false;
+		}
+
+		return ! $this->noindex_resolver->is_noindex( $post );
 	}
 
 	/**

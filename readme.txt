@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,7 @@ The description behind each link is taken from your SEO plugin's meta descriptio
 * Uses each post's primary category (compatible with Yoast SEO's "Primary category" setting) to avoid listing a post twice.
 * Pulls descriptions from Yoast SEO, Rank Math, SEOPress, or All in One SEO meta descriptions when available, falling back to the excerpt.
 * Per-post/page "Exclude from llms.txt" checkbox, for content like legal pages that shouldn't be listed.
+* Pages and posts marked "noindex" in Yoast SEO, Rank Math, SEOPress, or All in One SEO are excluded automatically.
 * Works on WordPress Multisite: activate network-wide or per site. Each site generates and caches its own independent llms.txt.
 * On Multisite, link this llms.txt to the equivalent llms.txt of other sites in the network (e.g. a per-language site), with the link label automatically derived from the target site's language.
 * Cache is automatically cleared when a post, page, or category changes, or when settings are saved.
@@ -60,7 +61,7 @@ If Yoast SEO, Rank Math, SEOPress, or All in One SEO has a meta description set 
 
 = How do I exclude a page or post, like my privacy policy? =
 
-Open it in the block editor and check "Exclude from llms.txt" in the sidebar panel of the same name.
+Open it in the block editor and check "Exclude from llms.txt" in the sidebar panel of the same name. Alternatively, marking it "noindex" in Yoast SEO, Rank Math, SEOPress, or All in One SEO excludes it automatically too, since content hidden from search engines is assumed to not be meant for LLMs either.
 
 = How do I control the order of the category sections? =
 
@@ -78,6 +79,10 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.1.0 =
+* Pages and posts marked "noindex" in Yoast SEO, Rank Math, SEOPress, or All in One SEO are now excluded automatically, in addition to the manual "Exclude from llms.txt" checkbox.
+* Added `languages/` with a `.pot` template and a German (de_DE) translation.
 
 = 1.0.0 =
 * Initial release.

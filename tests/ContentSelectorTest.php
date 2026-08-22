@@ -37,6 +37,18 @@ final class ContentSelectorTest extends TestCase {
 		$this->assertSame( array( 'Visible' ), $titles );
 	}
 
+	public function test_get_pages_excludes_pages_marked_noindex(): void {
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Visible' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Impressum' ) ),
+		);
+		WPTestStub::$post_meta[2] = array( '_yoast_wpseo_meta-robots-noindex' => '1' );
+
+		$titles = array_map( static fn ( $post ) => $post->post_title, ( new Content_Selector() )->get_pages() );
+
+		$this->assertSame( array( 'Visible' ), $titles );
+	}
+
 	public function test_get_grouped_posts_groups_by_primary_category_newest_first(): void {
 		WPTestStub::$terms = array(
 			10 => new WP_Term( 10, 'WordPress', 2 ),

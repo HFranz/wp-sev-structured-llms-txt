@@ -309,6 +309,7 @@ class WPTestStub {
 require_once dirname( __DIR__ ) . '/includes/class-description-resolver.php';
 require_once dirname( __DIR__ ) . '/includes/class-category-order.php';
 require_once dirname( __DIR__ ) . '/includes/class-post-meta.php';
+require_once dirname( __DIR__ ) . '/includes/class-noindex-resolver.php';
 require_once dirname( __DIR__ ) . '/includes/class-content-selector.php';
 require_once dirname( __DIR__ ) . '/includes/class-alternate-sites.php';
 require_once dirname( __DIR__ ) . '/includes/class-generator.php';

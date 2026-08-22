@@ -18,16 +18,22 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   hinter einem Link. Prüft der Reihe nach die Meta-Description-Felder von Yoast, RankMath, SEOPress, AIOSEO;
   fällt sonst auf den Post-Excerpt und zuletzt auf `wp_trim_words()` des Contents zurück. Über den Filter
   `sevllms_description` überschreibbar.
+- `includes/class-noindex-resolver.php` – `Noindex_Resolver::is_noindex()`: prüft, ob Yoast, RankMath, SEOPress
+  oder AIOSEO den Post/die Seite auf „noindex" gesetzt haben (jeweils das plugin-eigene Meta-Feld). Wird von
+  `Content_Selector::is_included()` genauso wie das manuelle Exclude-Flag behandelt — eine für Suchmaschinen
+  unsichtbare Seite (z. B. Impressum/Datenschutz per Yoast auf noindex) soll auch nicht in der llms.txt auftauchen,
+  ohne dass man sie zusätzlich manuell ausschließen muss. Über den Filter `sevllms_is_noindex` überschreibbar.
 - `includes/class-category-order.php` – `Category_Order`: liest/schreibt die Options-gesteuerte Reihenfolge und
   Ein-/Ausschluss-Liste der Kategorien (`sevllms_category_order`, Array von Term-IDs). Ohne gespeicherte
   Konfiguration: alle Kategorien, absteigend nach Post-Anzahl (`default_order()`). `admin_rows()` liefert die
   vollständige Liste für den Settings-Screen (konfigurierte zuerst, Rest alphabetisch angehängt, unchecked).
 - `includes/class-content-selector.php` – `Content_Selector`: `get_pages()` liefert alle veröffentlichten, nicht
-  ausgeschlossenen Seiten in Standard-Seitenreihenfolge (`menu_order`, dann Titel). `get_grouped_posts()` liefert
-  Beiträge gruppiert nach primärer Kategorie (Yoast-Primary-Category falls gesetzt und gültig, sonst die
-  Kategorie mit der niedrigsten Term-ID), in der von `Category_Order` vorgegebenen Reihenfolge, je Gruppe neueste
-  zuerst. Unkategorisierte Beiträge landen unter dem Sonderschlüssel `Content_Selector::UNCATEGORIZED_KEY`, nur
-  falls nicht leer.
+  ausgeschlossenen Seiten in Standard-Seitenreihenfolge (`menu_order`, dann Titel). „Ausgeschlossen" heißt: manuelles
+  `_sevllms_exclude`-Flag ODER von einem SEO-Plugin auf „noindex" gesetzt (siehe `Noindex_Resolver` oben).
+  `get_grouped_posts()` liefert Beiträge gruppiert nach primärer Kategorie (Yoast-Primary-Category falls gesetzt und
+  gültig, sonst die Kategorie mit der niedrigsten Term-ID), in der von `Category_Order` vorgegebenen Reihenfolge, je
+  Gruppe neueste zuerst. Unkategorisierte Beiträge landen unter dem Sonderschlüssel
+  `Content_Selector::UNCATEGORIZED_KEY`, nur falls nicht leer.
 - `includes/class-alternate-sites.php` – `Alternate_Sites::resolve()`: löst die in den Settings konfigurierte
   Liste von Ziel-Sites (`sevllms_alternate_sites`, je Eintrag `site_id` + optionales `label`) zu Label→URL-Paaren
   auf. Fehlt ein Label, wird es aus der Locale der Ziel-Site abgeleitet (`switch_to_blog()` + `get_locale()` +
@@ -74,9 +80,10 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
 ## Tests (kein WP-Testsuite/wp-env!)
 - `tests/bootstrap.php` definiert eigene, minimale Stubs für WP-Funktionen (Vorbild:
   `sev-webp-migrator-for-w3tc/tests/bootstrap.php`), lädt dann die Plugin-Klassen direkt.
-- Getestet wird reine Logik ohne echte DB: Fallback-Kette in `Description_Resolver`, Reihenfolge-/Default-Logik in
-  `Category_Order`, Gruppierung/Exclude-Filter in `Content_Selector`, Label-Auflösung in `Alternate_Sites`, und die
-  Gesamt-Assembly (inkl. Weglassen leerer Sektionen) in `Generator`.
+- Getestet wird reine Logik ohne echte DB: Fallback-Kette in `Description_Resolver`, SEO-Plugin-Erkennung in
+  `Noindex_Resolver`, Reihenfolge-/Default-Logik in `Category_Order`, Gruppierung/Exclude-/Noindex-Filter in
+  `Content_Selector`, Label-Auflösung in `Alternate_Sites`, und die Gesamt-Assembly (inkl. Weglassen leerer
+  Sektionen) in `Generator`.
 - Ausführen: `composer test` bzw. `vendor/bin/phpunit` (kein Docker/wp-env erforderlich).
 
 ## Weitere Dev-Workflows
@@ -100,3 +107,5 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
   absichern, da sie die sichtbare Struktur der ausgelieferten `llms.txt` direkt bestimmen.
 - Neue SEO-Plugin-Integrationen (weitere Meta-Description-Quellen) gehören in
   `Description_Resolver::SEO_META_KEYS`, in der Reihenfolge der Marktverbreitung.
+- Neue SEO-Plugin-Integrationen für die Noindex-Erkennung gehören als eigene `from_*()`-Methode in
+  `Noindex_Resolver`, analog zu den bestehenden vier.
