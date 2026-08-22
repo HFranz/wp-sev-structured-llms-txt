@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.1.2 =
+* The bundled German (de_DE) translation now actually loads on sites not yet installed from WordPress.org (e.g. a manual/GitHub install), so a German-language site correctly shows "## Seiten"/"## Beiträge" instead of the English defaults.
 
 = 1.1.1 =
 * Fixed WordPress redirecting `/llms.txt` to `/llms.txt/` via `redirect_canonical()` (the same issue reported for `/.well-known/security.txt`).

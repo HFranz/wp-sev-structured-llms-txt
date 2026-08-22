@@ -10,7 +10,3 @@ composer.json
 composer.lock
 phpunit.xml.dist
 AGENTS.md
-languages/*.po
-languages/*.mo
-languages/*.json
-languages/*.l10n.php

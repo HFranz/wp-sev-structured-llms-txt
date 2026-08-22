@@ -99,9 +99,17 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
 - `languages/sev-structured-llms-txt.pot` nach Änderungen an übersetzbaren Strings neu erzeugen mit
   `wp i18n make-pot . languages/sev-structured-llms-txt.pot --domain=sev-structured-llms-txt --exclude=tests,vendor,.git,.github`.
   Die mitgelieferte `de_DE`-Übersetzung (`languages/sev-structured-llms-txt-de_DE.po`, kompiliert zu `.mo` via
-  `wp i18n make-mo languages/`) wird bei Änderungen manuell nachgezogen. Beide `.po`/`.mo` sind über `.distignore`
-  vom ausgelieferten ZIP ausgeschlossen — nur die `.pot` ist Teil des Pakets; auf WP.org werden Übersetzungen über
-  translate.wordpress.org gepflegt (analog zur Korrektur in `sev-simple-hreflang` 1.2.0).
+  `wp i18n make-mo languages/`) wird bei Änderungen manuell nachgezogen.
+- Solange das Plugin **nicht** auf WP.org gelistet ist, lädt `sevllms_load_textdomain()` (Bootstrap, Hook `init`)
+  das mitgelieferte `.mo` explizit per `load_plugin_textdomain()` aus dem eigenen `languages/`-Ordner — WordPress'
+  automatischer Übersetzungs-Loader prüft nur `wp-content/languages/plugins/`, nie den `languages/`-Ordner eines
+  Plugins selbst, und dieser Ordner wird erst durch WP.org befüllt, sobald das Plugin dort gelistet und über
+  translate.wordpress.org übersetzt ist. Deshalb sind `.po`/`.mo` aktuell **nicht** über `.distignore`
+  ausgeschlossen (nötig, damit z. B. ein lokal installiertes ZIP von GitHub auf einer deutschen Site tatsächlich
+  „## Seiten"/„## Beiträge" statt „## Pages"/„## Posts" anzeigt). Sobald das Plugin auf WP.org live ist: `.po`,
+  `.mo`, `.json` wieder in `.distignore` aufnehmen (siehe Korrektur in `sev-simple-hreflang` 1.2.0) und prüfen, ob
+  `sevllms_load_textdomain()` dann noch nötig ist oder mit WordPress' automatischem Laden kollidiert (seit WP 6.7
+  ggf. „translation loaded too early"-Hinweis, falls beide Mechanismen greifen).
 
 ## Beim Ändern von Code beachten
 - Neue Cache-Invalidierungs-Hooks für Content-Änderungen (Posts, Terms, …) gehören in `Cache::register()`. Die
