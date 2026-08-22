@@ -98,8 +98,13 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
   jeder Site (Multisite-Loop analog zu `sev-calculate-price-for-booking-calendar/uninstall.php`).
 - `languages/sev-structured-llms-txt.pot` nach Änderungen an übersetzbaren Strings neu erzeugen mit
   `wp i18n make-pot . languages/sev-structured-llms-txt.pot --domain=sev-structured-llms-txt --exclude=tests,vendor,.git,.github`.
-  Die mitgelieferte `de_DE`-Übersetzung (`languages/sev-structured-llms-txt-de_DE.po`, kompiliert zu `.mo` via
-  `wp i18n make-mo languages/`) wird bei Änderungen manuell nachgezogen.
+  Die mitgelieferten Übersetzungen (`languages/sev-structured-llms-txt-de_DE.po` und
+  `languages/sev-structured-llms-txt-de_DE_formal.po`, kompiliert zu `.mo` via `wp i18n make-mo languages/`) werden
+  bei Änderungen manuell nachgezogen. Beide Locales werden mitgeliefert, weil WordPress `de_DE` (Deutsch) und
+  `de_DE_formal` (Deutsch, Sie) als komplett getrennte Locales mit eigenen `.mo`-Dateinamen behandelt — ohne die
+  `_formal`-Datei bleibt eine Site mit „Deutsch (Sie)" als Standardsprache unübersetzt, obwohl `de_DE` vorhanden
+  ist. Da unsere Strings ohnehin durchgehend in der Sie-Form formuliert sind, ist der Inhalt beider Dateien
+  identisch bis auf den `Language:`-Header.
 - Solange das Plugin **nicht** auf WP.org gelistet ist, lädt `sevllms_load_textdomain()` (Bootstrap, Hook `init`)
   das mitgelieferte `.mo` explizit per `load_plugin_textdomain()` aus dem eigenen `languages/`-Ordner — WordPress'
   automatischer Übersetzungs-Loader prüft nur `wp-content/languages/plugins/`, nie den `languages/`-Ordner eines
