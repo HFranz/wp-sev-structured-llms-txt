@@ -25,7 +25,10 @@ function sevllms_uninstall_current_site(): void {
 	delete_transient( 'sevllms_cache' );
 
 	global $wpdb;
-	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => '_sevllms_exclude' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One-off cleanup on uninstall, not a runtime query.
+
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- uninstall routine, no WP API equivalent for "delete all meta with this key"; caching is irrelevant while uninstalling.
+	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => '_sevllms_exclude' ) );
+	// phpcs:enable
 }
 
 /**
