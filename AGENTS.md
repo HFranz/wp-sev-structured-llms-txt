@@ -105,16 +105,15 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
   `_formal`-Datei bleibt eine Site mit „Deutsch (Sie)" als Standardsprache unübersetzt, obwohl `de_DE` vorhanden
   ist. Da unsere Strings ohnehin durchgehend in der Sie-Form formuliert sind, ist der Inhalt beider Dateien
   identisch bis auf den `Language:`-Header.
-- Solange das Plugin **nicht** auf WP.org gelistet ist, lädt `sevllms_load_textdomain()` (Bootstrap, Hook `init`)
-  das mitgelieferte `.mo` explizit per `load_plugin_textdomain()` aus dem eigenen `languages/`-Ordner — WordPress'
-  automatischer Übersetzungs-Loader prüft nur `wp-content/languages/plugins/`, nie den `languages/`-Ordner eines
-  Plugins selbst, und dieser Ordner wird erst durch WP.org befüllt, sobald das Plugin dort gelistet und über
-  translate.wordpress.org übersetzt ist. Deshalb sind `.po`/`.mo` aktuell **nicht** über `.distignore`
-  ausgeschlossen (nötig, damit z. B. ein lokal installiertes ZIP von GitHub auf einer deutschen Site tatsächlich
-  „## Seiten"/„## Beiträge" statt „## Pages"/„## Posts" anzeigt). Sobald das Plugin auf WP.org live ist: `.po`,
-  `.mo`, `.json` wieder in `.distignore` aufnehmen (siehe Korrektur in `sev-simple-hreflang` 1.2.0) und prüfen, ob
-  `sevllms_load_textdomain()` dann noch nötig ist oder mit WordPress' automatischem Laden kollidiert (seit WP 6.7
-  ggf. „translation loaded too early"-Hinweis, falls beide Mechanismen greifen).
+- `sevllms_load_textdomain()` / `load_plugin_textdomain()` wurde bewusst entfernt (Entscheidung von Heinrich,
+  2026-08-26), obwohl das Plugin zu diesem Zeitpunkt noch nicht auf WP.org gelistet war. WordPress' automatischer
+  Übersetzungs-Loader prüft nur `wp-content/languages/plugins/` (befüllt durch WP.org/translate.wordpress.org),
+  nie den `languages/`-Ordner eines Plugins selbst — bis zur Listung auf WP.org lädt eine manuell von GitHub
+  installierte Kopie also **keine** mitgelieferten Übersetzungen. Das ist bekannt/gewollt für den Zeitraum bis
+  zur Freigabe. `.po`/`.mo`/`.json` werden daher über `.distignore` von der ausgelieferten ZIP ausgeschlossen
+  (2026-08-26) — sie werden ohnehin nicht geladen, sobald das Plugin auf WP.org gelistet ist, übernimmt
+  translate.wordpress.org die Übersetzungen. `languages/sev-structured-llms-txt.pot` bleibt Teil des Repos
+  (Vorlage für Übersetzer) und ist nicht ausgeschlossen.
 
 ## Beim Ändern von Code beachten
 - Neue Cache-Invalidierungs-Hooks für Content-Änderungen (Posts, Terms, …) gehören in `Cache::register()`. Die

@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.1.5 =
+* Removed the explicit `load_plugin_textdomain()` call added in 1.1.2; bundled translations (`.po`/`.mo`/`.json`) are now excluded from the distributed package via `.distignore`.
 
 = 1.1.4 =
 * Resolved WordPress Plugin Check / PHPCS warnings in `uninstall.php` (direct DB query) and `sev-structured-llms-txt.php` (`load_plugin_textdomain()`) with justified inline suppressions.

@@ -3,7 +3,7 @@
  * Plugin Name: SEV Structured llms.txt
  * Plugin URI: https://github.com/HFranz/wp-sev-structured-llms-txt
  * Description: Generates a structured llms.txt at /llms.txt, listing pages and posts (grouped by category) so AI assistants and LLMs can discover your site's content. Works on single sites and WordPress Multisite, network-wide or per site.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: Heinrich Franz
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-const SEVLLMS_VERSION = '1.1.4';
+const SEVLLMS_VERSION = '1.1.5';
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-description-resolver.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-category-order.php';
@@ -54,21 +54,6 @@ add_action(
 		}
 	}
 );
-
-/**
- * Loads our bundled translations. Plugins hosted on WordPress.org don't
- * need this (WordPress loads translations from wp-content/languages/plugins/
- * automatically), but that mechanism never sees a plugin's own bundled
- * languages/ folder, so it does nothing for a manually-installed copy (e.g.
- * from GitHub, before this plugin is live on WordPress.org).
- *
- * @return void
- */
-function sevllms_load_textdomain(): void {
-	// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- intentional: this plugin is not yet listed on WordPress.org, so the automatic wp-content/languages/plugins/ lookup finds nothing; remove this call once it is (see AGENTS.md).
-	load_plugin_textdomain( 'sev-structured-llms-txt', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-add_action( 'init', 'sevllms_load_textdomain' );
 
 /**
  * Registers the rewrite rule and flushes rewrite rules so /llms.txt works immediately.
