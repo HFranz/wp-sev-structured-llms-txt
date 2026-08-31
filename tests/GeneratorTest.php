@@ -88,6 +88,40 @@ final class GeneratorTest extends TestCase {
 		$this->assertStringContainsString( "### More posts\n\n- [Loose post](https://example.com/loose-post/)", $content );
 	}
 
+	public function test_products_section_is_omitted_when_there_are_no_products(): void {
+		$content = ( new Generator() )->generate();
+
+		$this->assertStringNotContainsString( '## Products', $content );
+	}
+
+	public function test_products_section_renders_grouped_by_product_category(): void {
+		WPTestStub::$product_terms = array(
+			10 => new WP_Term( 10, 'Shirts', 1 ),
+		);
+		WPTestStub::$options['sevllms_product_category_order'] = array( 10 );
+
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Basic Shirt', 'post_name' => 'basic-shirt', 'post_date' => '2026-06-01' ) ),
+		);
+		WPTestStub::$post_terms = array(
+			1 => array( 'product_cat' => array( WPTestStub::$product_terms[10] ) ),
+		);
+
+		$content = ( new Generator() )->generate();
+
+		$this->assertStringContainsString( "## Products\n\n### Shirts\n\n- [Basic Shirt](https://example.com/basic-shirt/)", $content );
+	}
+
+	public function test_uncategorized_products_render_under_more_products_heading(): void {
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Loose product', 'post_name' => 'loose-product', 'post_date' => '2026-01-01' ) ),
+		);
+
+		$content = ( new Generator() )->generate();
+
+		$this->assertStringContainsString( "### More products\n\n- [Loose product](https://example.com/loose-product/)", $content );
+	}
+
 	public function test_generated_content_is_filterable(): void {
 		add_filter(
 			'sevllms_generated_content',

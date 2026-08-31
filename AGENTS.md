@@ -27,13 +27,23 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   Ein-/Ausschluss-Liste der Kategorien (`sevllms_category_order`, Array von Term-IDs). Ohne gespeicherte
   Konfiguration: alle Kategorien, absteigend nach Post-Anzahl (`default_order()`). `admin_rows()` liefert die
   vollständige Liste für den Settings-Screen (konfigurierte zuerst, Rest alphabetisch angehängt, unchecked).
+- `includes/class-product-category-order.php` – `Product_Category_Order`: dasselbe wie `Category_Order`, aber für
+  WooCommerce's `product_cat`-Taxonomie (eigene Option `sevllms_product_category_order`, eigene Term-Order/Admin-Rows).
+  Bewusst eine separate Klasse statt eines Taxonomie-Parameters an `Category_Order`, da `get_categories()` fest an die
+  `category`-Taxonomie gebunden ist und `Product_Category_Order` stattdessen `get_terms()` nutzt. Ist WooCommerce nicht
+  aktiv, existiert die Taxonomie nicht; `get_terms()` liefert dann `WP_Error`, was hier zu einem leeren Array
+  normalisiert wird – kein explizites „ist WooCommerce aktiv"-Gate nötig.
 - `includes/class-content-selector.php` – `Content_Selector`: `get_pages()` liefert alle veröffentlichten, nicht
   ausgeschlossenen Seiten in Standard-Seitenreihenfolge (`menu_order`, dann Titel). „Ausgeschlossen" heißt: manuelles
   `_sevllms_exclude`-Flag ODER von einem SEO-Plugin auf „noindex" gesetzt (siehe `Noindex_Resolver` oben).
   `get_grouped_posts()` liefert Beiträge gruppiert nach primärer Kategorie (Yoast-Primary-Category falls gesetzt und
   gültig, sonst die Kategorie mit der niedrigsten Term-ID), in der von `Category_Order` vorgegebenen Reihenfolge, je
   Gruppe neueste zuerst. Unkategorisierte Beiträge landen unter dem Sonderschlüssel
-  `Content_Selector::UNCATEGORIZED_KEY`, nur falls nicht leer.
+  `Content_Selector::UNCATEGORIZED_KEY`, nur falls nicht leer. `get_grouped_products()` ist das Pendant für
+  WooCommerce-Produkte (`post_type` `product`, Taxonomie `product_cat`, Yoast-Meta
+  `_yoast_wpseo_primary_product_cat`, geordnet über `Product_Category_Order`). Ist WooCommerce nicht aktiv, existieren
+  schlicht keine Posts vom Typ `product`, `get_posts()` liefert dann ein leeres Array – auch hier kein explizites Gate
+  nötig, das Verhalten ergibt sich allein aus der Datenlage.
 - `includes/class-alternate-sites.php` – `Alternate_Sites::resolve()`: löst die in den Settings konfigurierte
   Liste von Ziel-Sites (`sevllms_alternate_sites`, je Eintrag `site_id` + optionales `label`) zu Label→URL-Paaren
   auf. Fehlt ein Label, wird es aus der Locale der Ziel-Site abgeleitet (`switch_to_blog()` + `get_locale()` +
@@ -41,11 +51,12 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   Nur relevant auf Multisite; auf Single-Site liefert `resolve()` immer ein leeres Array.
 - `includes/class-generator.php` – `Generator::generate()`: baut das komplette Markdown-Dokument aus den
   Bausteinen oben zusammen (Intro-Block, „## Pages", Alternate-Site-Zeilen, „## Posts" mit „###"-Unterkapiteln je
-  Kategorie). Leere Sektionen werden komplett weggelassen. Über den Filter `sevllms_generated_content`
-  überschreibbar.
+  Kategorie, und – falls vorhanden – „## Products" mit „###"-Unterkapiteln je Produktkategorie). Leere Sektionen
+  werden komplett weggelassen (das ist auch der Mechanismus, über den die Products-Sektion auf Sites ohne
+  WooCommerce verschwindet). Über den Filter `sevllms_generated_content` überschreibbar.
 - `includes/class-cache.php` – `Cache`: Transient-Cache (`sevllms_cache`, 12h TTL als Backstop) für den generierten
-  Content. Wird bei `save_post`/`delete_post` (post & page) und Kategorie-Änderungen automatisch geleert. Die
-  Invalidierung beim Speichern der Plugin-Settings sitzt bewusst *nicht* hier, sondern in
+  Content. Wird bei `save_post`/`delete_post` (post, page & product) sowie Kategorie-/Produktkategorie-Änderungen
+  automatisch geleert. Die Invalidierung beim Speichern der Plugin-Settings sitzt bewusst *nicht* hier, sondern in
   `Admin_Settings::maybe_clear_cache_after_save()` (siehe unten).
 - `includes/class-rewrite.php` – `Rewrite`: registriert die Rewrite-Rule `^llms\.txt$` und liefert den (gecachten)
   Content bei `template_redirect` aus, als `text/plain`. `prevent_canonical_redirect()` hängt am Filter
@@ -55,12 +66,15 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   https://wordpress.org/support/topic/well-known-security-txt-redirects-301-403s-redirect_canonical-fix/).
   `flush_current_site()` ist die statische Hilfsfunktion, die beim Aktivieren (pro Site, siehe Bootstrap) die
   Rewrite-Regeln neu registriert und flusht.
-- `includes/class-post-meta.php` – `Post_Meta`: „Exclude from llms.txt"-Checkbox-Metabox auf `post` und `page`
-  (Postmeta `_sevllms_exclude`).
-- `includes/class-admin-settings.php` – Settings-Seite unter **Settings → llms.txt**: Tagline-Feld, per Drag&Drop
-  sortierbare Kategorie-Checkliste (jQuery UI Sortable, WP-Core-Bundle, kein externes JS), auf Multisite ein
-  Alternate-Sites-Repeater (reines Vanilla-JS Add/Remove, kein Build-Step), Live-Vorschau und ein
-  „Cache leeren"-Button (`admin-post.php?action=sevllms_purge_cache`). `maybe_clear_cache_after_save()` hängt an
+- `includes/class-post-meta.php` – `Post_Meta`: „Exclude from llms.txt"-Checkbox-Metabox auf `post`, `page` und
+  `product` (Postmeta `_sevllms_exclude`). Die Metabox auf `product` zu registrieren ist ein No-Op, solange
+  WooCommerce nicht aktiv ist (der Screen existiert dann schlicht nicht).
+- `includes/class-admin-settings.php` – Settings-Seite unter **Settings → llms.txt**: Tagline-Feld, je eine per
+  Drag&Drop sortierbare Kategorie-Checkliste für Post- und (falls `product_cat` existiert, siehe
+  `taxonomy_exists()`) Produktkategorien (jQuery UI Sortable, WP-Core-Bundle, kein externes JS; beide `<ul>`s teilen
+  sich die CSS-Klasse `sevllms-term-order`), auf Multisite ein Alternate-Sites-Repeater (reines Vanilla-JS
+  Add/Remove, kein Build-Step), Live-Vorschau und ein „Cache leeren"-Button
+  (`admin-post.php?action=sevllms_purge_cache`). `maybe_clear_cache_after_save()` hängt an
   `admin_init` und leert den Cache, sobald `options.php` nach dem Speichern mit `?page=<slug>&settings-updated=…`
   auf diese Seite zurückleitet — unabhängig davon, ob es der allererste Save eines Feldes ist (dann feuert WP
   `add_option_{$option}` statt `update_option_{$option}`) oder ob eine Checkbox-Liste komplett leer abgeschickt
@@ -92,7 +106,13 @@ das Dokument zusammen → `Cache::set()` → Ausgabe.
 - Ausführen: `composer test` bzw. `vendor/bin/phpunit` (kein Docker/wp-env erforderlich).
 
 ## Weitere Dev-Workflows
-- `composer lint:php` / `composer fix:php` – PHPCS/PHPCBF (WPCS).
+- `composer lint:php` / `composer fix:php` – PHPCS/PHPCBF, Ruleset in `phpcs.xml.dist` (`WordPress-Extra`, bewusst
+  *ohne* `WordPress-Docs`: dessen `Squiz.Commenting.*`-Sniffs verlangen Docblocks auf jeder privaten Property und
+  jedem Constructor, was dem hier durchgängig gepflegten Stil aus typisierten Properties ohne Docblock widerspricht).
+  `wp-coding-standards/wpcs` verlangt `squizlabs/php_codesniffer:^3.13`, daher ist `php_codesniffer` in
+  `composer.json` bewusst auf `^3.13` gepinnt statt `^4.0` (WPCS unterstützt PHPCS 4 noch nicht, Stand 2026-08-31).
+  Falls die Zip-Extraktion von `composer install`/`update` mit „Operation not permitted“ auf `chmod`/`utime`
+  fehlschlägt (Sandbox-/Mount-Eigenheit), hilft `composer install --prefer-source`.
 - Keine Build-Pipeline für JS/CSS – die Admin-Seite nutzt reines Vanilla-JS/jQuery-UI-Sortable ohne Bundler.
 - `uninstall.php` entfernt alle `sevllms_*`-Optionen, den Cache-Transient und die `_sevllms_exclude`-Postmeta auf
   jeder Site (Multisite-Loop analog zu `sev-calculate-price-for-booking-calendar/uninstall.php`).

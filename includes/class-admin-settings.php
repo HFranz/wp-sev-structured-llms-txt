@@ -89,6 +89,16 @@ class Admin_Settings {
 
 		register_setting(
 			self::PAGE_SLUG,
+			Product_Category_Order::OPTION_NAME,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_product_category_order' ),
+				'default'           => array(),
+			)
+		);
+
+		register_setting(
+			self::PAGE_SLUG,
 			Alternate_Sites::OPTION_NAME,
 			array(
 				'type'              => 'array',
@@ -111,7 +121,57 @@ class Admin_Settings {
 			return array();
 		}
 
-		$existing_ids = array_map( 'strval', array_keys( get_terms( array( 'taxonomy' => 'category', 'hide_empty' => false, 'fields' => 'id=>name' ) ) ) );
+		$existing_ids = array_map(
+			'strval',
+			array_keys(
+				get_terms(
+					array(
+						'taxonomy'   => 'category',
+						'hide_empty' => false,
+						'fields'     => 'id=>name',
+					)
+				)
+			)
+		);
+
+		$ids = array();
+		foreach ( $value as $raw_id ) {
+			$id = (string) (int) $raw_id;
+			if ( in_array( $id, $existing_ids, true ) && ! in_array( (int) $id, $ids, true ) ) {
+				$ids[] = (int) $id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Sanitizes the submitted product category order/inclusion list, the same
+	 * way sanitize_category_order() does for post categories. Returns an
+	 * empty array if the "product_cat" taxonomy doesn't exist (WooCommerce
+	 * not active).
+	 *
+	 * @param mixed $value Raw submitted value.
+	 * @return int[]
+	 */
+	public function sanitize_product_category_order( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => Product_Category_Order::TAXONOMY,
+				'hide_empty' => false,
+				'fields'     => 'id=>name',
+			)
+		);
+
+		if ( ! is_array( $terms ) ) {
+			return array();
+		}
+
+		$existing_ids = array_map( 'strval', array_keys( $terms ) );
 
 		$ids = array();
 		foreach ( $value as $raw_id ) {
@@ -195,7 +255,7 @@ class Admin_Settings {
 		wp_add_inline_script(
 			'sevllms-admin-settings',
 			"jQuery(function($){
-				$('#sevllms-category-order').sortable({ handle: '.sevllms-drag-handle' });
+				$('#sevllms-category-order, #sevllms-product-category-order').sortable({ handle: '.sevllms-drag-handle' });
 
 				var addRow = function(){
 					var template = $('#sevllms-alternate-site-template').html();
@@ -217,8 +277,8 @@ class Admin_Settings {
 		wp_enqueue_style( 'sevllms-admin-settings' );
 		wp_add_inline_style(
 			'sevllms-admin-settings',
-			'.sevllms-settings ul#sevllms-category-order { max-width: 480px; }
-			.sevllms-settings #sevllms-category-order li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: #fff; border: 1px solid #dcdcde; margin-bottom: 4px; }
+			'.sevllms-settings ul.sevllms-term-order { max-width: 480px; }
+			.sevllms-settings .sevllms-term-order li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: #fff; border: 1px solid #dcdcde; margin-bottom: 4px; }
 			.sevllms-settings .sevllms-drag-handle { cursor: move; color: #787c82; }
 			.sevllms-settings .sevllms-alternate-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 			.sevllms-settings pre.sevllms-preview { max-height: 400px; overflow: auto; background: #fff; border: 1px solid #dcdcde; padding: 12px; }'
@@ -252,6 +312,7 @@ class Admin_Settings {
 				settings_fields( self::PAGE_SLUG );
 				$this->render_tagline_field();
 				$this->render_category_order_field();
+				$this->render_product_category_order_field();
 				$this->render_alternate_sites_field();
 				submit_button( __( 'Save settings', 'sev-structured-llms-txt' ) );
 				?>
@@ -299,12 +360,43 @@ class Admin_Settings {
 		<p class="description">
 			<?php esc_html_e( 'Choose which categories appear as a "Posts" subsection, and drag to set their order.', 'sev-structured-llms-txt' ); ?>
 		</p>
-		<ul id="sevllms-category-order">
+		<ul id="sevllms-category-order" class="sevllms-term-order">
 			<?php foreach ( $rows as $row ) : ?>
 				<li>
 					<span class="sevllms-drag-handle dashicons dashicons-menu"></span>
 					<label>
 						<input type="checkbox" name="<?php echo esc_attr( Category_Order::OPTION_NAME ); ?>[]" value="<?php echo esc_attr( (string) $row['term_id'] ); ?>" <?php checked( $row['included'] ); ?> />
+						<?php echo esc_html( $row['name'] ); ?>
+					</label>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+	}
+
+	/**
+	 * Renders the sortable, checkable product category order list, only if
+	 * the "product_cat" taxonomy exists (i.e. WooCommerce is active).
+	 *
+	 * @return void
+	 */
+	private function render_product_category_order_field(): void {
+		if ( ! taxonomy_exists( Product_Category_Order::TAXONOMY ) ) {
+			return;
+		}
+
+		$rows = ( new Product_Category_Order() )->admin_rows();
+		?>
+		<h2><?php esc_html_e( 'Product categories', 'sev-structured-llms-txt' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Choose which product categories appear as a "Products" subsection, and drag to set their order.', 'sev-structured-llms-txt' ); ?>
+		</p>
+		<ul id="sevllms-product-category-order" class="sevllms-term-order">
+			<?php foreach ( $rows as $row ) : ?>
+				<li>
+					<span class="sevllms-drag-handle dashicons dashicons-menu"></span>
+					<label>
+						<input type="checkbox" name="<?php echo esc_attr( Product_Category_Order::OPTION_NAME ); ?>[]" value="<?php echo esc_attr( (string) $row['term_id'] ); ?>" <?php checked( $row['included'] ); ?> />
 						<?php echo esc_html( $row['name'] ); ?>
 					</label>
 				</li>

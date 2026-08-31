@@ -1,6 +1,6 @@
 <?php
 /**
- * Adds the "Exclude from llms.txt" checkbox to posts and pages.
+ * Adds the "Exclude from llms.txt" checkbox to posts, pages, and products.
  *
  * @package SevStructuredLlmsTxt
  */
@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the exclude checkbox meta box on posts and pages, and persists
- * its value.
+ * Registers the exclude checkbox meta box on posts, pages, and (if
+ * WooCommerce is active) products, and persists its value.
  */
 class Post_Meta {
 
@@ -32,15 +32,18 @@ class Post_Meta {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
 		add_action( 'save_post_post', array( $this, 'save' ) );
 		add_action( 'save_post_page', array( $this, 'save' ) );
+		add_action( 'save_post_product', array( $this, 'save' ) );
 	}
 
 	/**
-	 * Adds the meta box to the post and page edit screens.
+	 * Adds the meta box to the post, page, and product edit screens. Adding a
+	 * meta box to the "product" screen is a no-op if WooCommerce isn't active,
+	 * since that post type/screen doesn't exist in that case.
 	 *
 	 * @return void
 	 */
 	public function add_meta_box(): void {
-		foreach ( array( 'post', 'page' ) as $post_type ) {
+		foreach ( array( 'post', 'page', 'product' ) as $post_type ) {
 			add_meta_box(
 				'sevllms-exclude',
 				__( 'llms.txt', 'sev-structured-llms-txt' ),

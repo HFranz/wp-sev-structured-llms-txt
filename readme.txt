@@ -4,11 +4,11 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.1.5
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generates a structured llms.txt at /llms.txt, listing pages and posts grouped by category, so AI assistants and LLMs can discover your site's content.
+Generates a structured llms.txt at /llms.txt, listing pages, posts, and (if WooCommerce is active) products, grouped by category, so AI assistants and LLMs can discover your site's content.
 
 == Description ==
 
@@ -22,8 +22,9 @@ No physical file is ever written to disk. The document is rendered on request th
 * A `## Pages` section listing every published page, each as `- [Title](URL): Description`.
 * Optionally, one or more `> Label version: URL` lines linking to this llms.txt on other sites in your network (e.g. one site per language).
 * A `## Posts` section with one `### Category Name` subsection per post category, newest posts first, in an order you control.
+* If WooCommerce is active, a `## Products` section with one `### Category Name` subsection per product category, newest products first, in an order you control.
 
-The description behind each link is taken from your SEO plugin's meta description (Yoast SEO, Rank Math, SEOPress, or All in One SEO, in that order) if one is set, otherwise from the post/page excerpt or a trimmed excerpt of its content.
+The description behind each link is taken from your SEO plugin's meta description (Yoast SEO, Rank Math, SEOPress, or All in One SEO, in that order) if one is set, otherwise from the post/page/product excerpt or a trimmed excerpt of its content.
 
 **Features**
 
@@ -31,25 +32,30 @@ The description behind each link is taken from your SEO plugin's meta descriptio
 * Automatically lists every published page.
 * Groups every published post by its primary category, in an order you choose (drag & drop in the settings screen), newest post first within each category.
 * Uses each post's primary category (compatible with Yoast SEO's "Primary category" setting) to avoid listing a post twice.
+* If WooCommerce is active, automatically lists every published product too, grouped by its primary product category the same way posts are, with its own drag & drop order in the settings screen.
 * Pulls descriptions from Yoast SEO, Rank Math, SEOPress, or All in One SEO meta descriptions when available, falling back to the excerpt.
-* Per-post/page "Exclude from llms.txt" checkbox, for content like legal pages that shouldn't be listed.
-* Pages and posts marked "noindex" in Yoast SEO, Rank Math, SEOPress, or All in One SEO are excluded automatically.
+* Per-item "Exclude from llms.txt" checkbox on posts, pages, and products, for content that shouldn't be listed (e.g. legal pages).
+* Pages, posts, and products marked "noindex" in Yoast SEO, Rank Math, SEOPress, or All in One SEO are excluded automatically.
 * Works on WordPress Multisite: activate network-wide or per site. Each site generates and caches its own independent llms.txt.
 * On Multisite, link this llms.txt to the equivalent llms.txt of other sites in the network (e.g. a per-language site), with the link label automatically derived from the target site's language.
-* Cache is automatically cleared when a post, page, or category changes, or when settings are saved.
+* Cache is automatically cleared when a post, page, product, category, or product category changes, or when settings are saved.
 
 **Limitations**
 
-This plugin lists pages and posts only; other public post types are not included. On a Multisite network, each site's llms.txt only ever describes that site's own content — it does not aggregate content across sites into one document.
+This plugin lists pages, posts, and (if WooCommerce is active) products only; other public post types are not included. On a Multisite network, each site's llms.txt only ever describes that site's own content — it does not aggregate content across sites into one document.
 
 == Installation ==
 
 1. Upload the `sev-structured-llms-txt` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the **Plugins** menu (per site, or network-wide on Multisite).
-3. Visit **Settings → llms.txt** to set an optional tagline, choose which post categories to include and in what order, and (on Multisite) link to other language sites.
+3. Visit **Settings → llms.txt** to set an optional tagline, choose which post (and, with WooCommerce, product) categories to include and in what order, and (on Multisite) link to other language sites.
 4. Your llms.txt is now available at `/llms.txt`.
 
 == Frequently Asked Questions ==
+
+= Does it support WooCommerce products? =
+
+Yes, automatically. If WooCommerce is active, every published product is listed in a `## Products` section, grouped by product category the same way posts are grouped by category, with its own order in **Settings → llms.txt**. If WooCommerce isn't active, this section is simply omitted.
 
 = Does this create a physical llms.txt file? =
 
@@ -79,6 +85,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.2.0 =
+* Added WooCommerce support: if WooCommerce is active, published products are now listed in a `## Products` section, grouped by product category (drag & drop order in the settings screen, same as post categories), with the manual "Exclude from llms.txt" checkbox and SEO-plugin "noindex" detection applying to products too.
 
 = 1.1.5 =
 * Removed the explicit `load_plugin_textdomain()` call added in 1.1.2; bundled translations (`.po`/`.mo`/`.json`) are now excluded from the distributed package via `.distignore`.

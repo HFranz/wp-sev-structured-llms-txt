@@ -1,14 +1,14 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: SEV Structured llms.txt 1.1.4\n"
+"Project-Id-Version: SEV Structured llms.txt 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/sev-structured-llms-txt\n"
 "Last-Translator: sevmatic\n"
 "Language-Team: German (Formal)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-24T08:02:35+00:00\n"
-"PO-Revision-Date: 2026-08-24T08:02:35+00:00\n"
+"POT-Creation-Date: 2026-08-31T20:59:54+00:00\n"
+"PO-Revision-Date: 2026-08-31T20:59:54+00:00\n"
 "Language: de_DE_formal\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: sev-structured-llms-txt\n"
@@ -25,8 +25,8 @@ msgstr "https://github.com/HFranz/wp-sev-structured-llms-txt"
 
 #. Description of the plugin
 #: sev-structured-llms-txt.php
-msgid "Generates a structured llms.txt at /llms.txt, listing pages and posts (grouped by category) so AI assistants and LLMs can discover your site's content. Works on single sites and WordPress Multisite, network-wide or per site."
-msgstr "Erzeugt eine strukturierte llms.txt unter /llms.txt mit Seiten und (nach Kategorie gruppierten) Beiträgen, damit KI-Assistenten und LLMs die Inhalte Ihrer Website erfassen können. Funktioniert auf Einzel-Sites und WordPress-Multisite, netzwerkweit oder pro Site."
+msgid "Generates a structured llms.txt at /llms.txt, listing pages, posts, and (if WooCommerce is active) products, grouped by category, so AI assistants and LLMs can discover your site's content. Works on single sites and WordPress Multisite, network-wide or per site."
+msgstr "Erzeugt eine strukturierte llms.txt unter /llms.txt mit Seiten, Beiträgen und (falls WooCommerce aktiv ist) Produkten, gruppiert nach Kategorie, damit KI-Assistenten und LLMs die Inhalte Ihrer Website erfassen können. Funktioniert auf Einzel-Sites und WordPress-Multisite, netzwerkweit oder pro Site."
 
 #. Author of the plugin
 #: sev-structured-llms-txt.php
@@ -79,6 +79,14 @@ msgstr "Beitragskategorien"
 msgid "Choose which categories appear as a \"Posts\" subsection, and drag to set their order."
 msgstr "Wählen Sie aus, welche Kategorien als Unterabschnitt „Posts“ erscheinen, und legen Sie die Reihenfolge per Drag & Drop fest."
 
+#: includes/class-admin-settings.php:342
+msgid "Product categories"
+msgstr "Produktkategorien"
+
+#: includes/class-admin-settings.php:344
+msgid "Choose which product categories appear as a \"Products\" subsection, and drag to set their order."
+msgstr "Wählen Sie aus, welche Produktkategorien als Unterabschnitt „Products“ erscheinen, und legen Sie die Reihenfolge per Drag & Drop fest."
+
 #: includes/class-admin-settings.php:330
 msgid "Alternate language sites"
 msgstr "Alternative Sprachversionen"
@@ -124,6 +132,14 @@ msgstr "## Beiträge"
 #: includes/class-generator.php:154
 msgid "More posts"
 msgstr "Weitere Beiträge"
+
+#: includes/class-generator.php:180
+msgid "## Products"
+msgstr "## Produkte"
+
+#: includes/class-generator.php:184
+msgid "More products"
+msgstr "Weitere Produkte"
 
 #: includes/class-post-meta.php:66
 msgid "Exclude from llms.txt"

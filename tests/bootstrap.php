@@ -183,7 +183,53 @@ function get_the_category( int $post_id ): array {
 }
 
 function get_term( int $term_id, string $taxonomy = '' ): WP_Term|false {
+	if ( 'product_cat' === $taxonomy ) {
+		return WPTestStub::$product_terms[ $term_id ] ?? false;
+	}
+
 	return WPTestStub::$terms[ $term_id ] ?? false;
+}
+
+/**
+ * @param int $post_id
+ * @return WP_Term[]
+ */
+function wp_get_post_terms( int $post_id, string $taxonomy = '' ): array {
+	return WPTestStub::$post_terms[ $post_id ][ $taxonomy ] ?? array();
+}
+
+/**
+ * @param array<string, mixed> $args
+ * @return WP_Term[]
+ */
+function get_terms( array $args = array() ): array {
+	$terms = 'product_cat' === ( $args['taxonomy'] ?? '' ) ? WPTestStub::$product_terms : WPTestStub::$terms;
+
+	if ( ! empty( $args['hide_empty'] ) ) {
+		$terms = array_filter( $terms, static fn ( WP_Term $term ) => $term->count > 0 );
+	}
+
+	$terms = array_values( $terms );
+
+	if ( 'count' === ( $args['orderby'] ?? '' ) ) {
+		$direction = strtoupper( (string) ( $args['order'] ?? 'ASC' ) );
+		usort(
+			$terms,
+			static fn ( WP_Term $a, WP_Term $b ) => 'ASC' === $direction ? $a->count <=> $b->count : $b->count <=> $a->count
+		);
+	} elseif ( 'name' === ( $args['orderby'] ?? '' ) ) {
+		usort( $terms, static fn ( WP_Term $a, WP_Term $b ) => strcmp( $a->name, $b->name ) );
+	}
+
+	if ( 'id=>name' === ( $args['fields'] ?? '' ) ) {
+		$by_id = array();
+		foreach ( $terms as $term ) {
+			$by_id[ $term->term_id ] = $term->name;
+		}
+		return $by_id;
+	}
+
+	return $terms;
 }
 
 /**
@@ -271,8 +317,14 @@ class WPTestStub {
 	/** post_id => WP_Term[] */
 	public static array $post_categories = array();
 
+	/** post_id => array<taxonomy, WP_Term[]> */
+	public static array $post_terms = array();
+
 	/** term_id => WP_Term */
 	public static array $terms = array();
+
+	/** term_id => WP_Term (product_cat taxonomy) */
+	public static array $product_terms = array();
 
 	public static bool $is_multisite = false;
 
@@ -293,7 +345,9 @@ class WPTestStub {
 		self::$post_meta        = array();
 		self::$options          = array();
 		self::$post_categories  = array();
+		self::$post_terms       = array();
 		self::$terms            = array();
+		self::$product_terms    = array();
 		self::$is_multisite     = false;
 		self::$sites            = array();
 		self::$site_locales     = array();
@@ -308,6 +362,7 @@ class WPTestStub {
 
 require_once dirname( __DIR__ ) . '/includes/class-description-resolver.php';
 require_once dirname( __DIR__ ) . '/includes/class-category-order.php';
+require_once dirname( __DIR__ ) . '/includes/class-product-category-order.php';
 require_once dirname( __DIR__ ) . '/includes/class-post-meta.php';
 require_once dirname( __DIR__ ) . '/includes/class-noindex-resolver.php';
 require_once dirname( __DIR__ ) . '/includes/class-content-selector.php';

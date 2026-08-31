@@ -44,7 +44,12 @@ class Category_Order {
 	public function admin_rows(): array {
 		$ordered_ids = $this->ordered_term_ids();
 
-		$all_terms = get_categories( array( 'hide_empty' => false, 'orderby' => 'name' ) );
+		$all_terms = get_categories(
+			array(
+				'hide_empty' => false,
+				'orderby'    => 'name',
+			)
+		);
 		$by_id     = array();
 		foreach ( $all_terms as $term ) {
 			$by_id[ (int) $term->term_id ] = $term;

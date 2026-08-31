@@ -13,7 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Transient-backed cache for the generated llms.txt content, invalidated
- * whenever a post/page, category, or plugin setting changes.
+ * whenever a post/page/product, category/product category, or plugin
+ * setting changes.
  */
 class Cache {
 
@@ -35,10 +36,14 @@ class Cache {
 	public function register(): void {
 		add_action( 'save_post_post', array( $this, 'delete' ) );
 		add_action( 'save_post_page', array( $this, 'delete' ) );
+		add_action( 'save_post_product', array( $this, 'delete' ) );
 		add_action( 'delete_post', array( $this, 'delete' ) );
 		add_action( 'edited_category', array( $this, 'delete' ) );
 		add_action( 'created_category', array( $this, 'delete' ) );
 		add_action( 'delete_category', array( $this, 'delete' ) );
+		add_action( 'edited_product_cat', array( $this, 'delete' ) );
+		add_action( 'created_product_cat', array( $this, 'delete' ) );
+		add_action( 'delete_product_cat', array( $this, 'delete' ) );
 	}
 
 	/**

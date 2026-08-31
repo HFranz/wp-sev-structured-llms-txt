@@ -13,7 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Builds the llms.txt content: intro block, "Seiten" list, optional alternate
- * language links, and "Beiträge" grouped by category.
+ * language links, "Beiträge" grouped by category, and (if WooCommerce is
+ * active) products grouped by product category.
  */
 class Generator {
 
@@ -56,6 +57,11 @@ class Generator {
 		$posts_section = $this->posts_section();
 		if ( '' !== $posts_section ) {
 			$sections[] = $posts_section;
+		}
+
+		$products_section = $this->products_section();
+		if ( '' !== $products_section ) {
+			$sections[] = $products_section;
 		}
 
 		$content = implode( "\n\n", $sections ) . "\n";
@@ -160,6 +166,39 @@ class Generator {
 
 			foreach ( $posts as $post ) {
 				$lines[] = $this->link_line( $post );
+			}
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Builds the "## Products" section with one "###" subheading per product
+	 * category, or an empty string if there are no products (including when
+	 * WooCommerce isn't active).
+	 *
+	 * @return string
+	 */
+	private function products_section(): string {
+		$grouped = $this->content_selector->get_grouped_products();
+
+		if ( empty( $grouped ) ) {
+			return '';
+		}
+
+		$lines = array( __( '## Products', 'sev-structured-llms-txt' ) );
+
+		foreach ( $grouped as $group_name => $products ) {
+			$heading = Content_Selector::UNCATEGORIZED_KEY === $group_name
+				? __( 'More products', 'sev-structured-llms-txt' )
+				: $group_name;
+
+			$lines[] = '';
+			$lines[] = '### ' . $heading;
+			$lines[] = '';
+
+			foreach ( $products as $product ) {
+				$lines[] = $this->link_line( $product );
 			}
 		}
 

@@ -126,4 +126,66 @@ final class ContentSelectorTest extends TestCase {
 	public function test_no_uncategorized_group_when_there_are_no_posts(): void {
 		$this->assertSame( array(), ( new Content_Selector() )->get_grouped_posts() );
 	}
+
+	public function test_get_grouped_products_returns_empty_array_when_woocommerce_is_not_active(): void {
+		$this->assertSame( array(), ( new Content_Selector() )->get_grouped_products() );
+	}
+
+	public function test_get_grouped_products_groups_by_primary_product_category_newest_first(): void {
+		WPTestStub::$product_terms = array(
+			10 => new WP_Term( 10, 'Shirts', 2 ),
+			20 => new WP_Term( 20, 'Mugs', 1 ),
+		);
+		WPTestStub::$options['sevllms_product_category_order'] = array( 10, 20 );
+
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Old shirt', 'post_date' => '2026-01-01' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'New shirt', 'post_date' => '2026-06-01' ) ),
+			new WP_Post( array( 'ID' => 3, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Mug', 'post_date' => '2026-03-01' ) ),
+		);
+		WPTestStub::$post_terms = array(
+			1 => array( 'product_cat' => array( WPTestStub::$product_terms[10] ) ),
+			2 => array( 'product_cat' => array( WPTestStub::$product_terms[10] ) ),
+			3 => array( 'product_cat' => array( WPTestStub::$product_terms[20] ) ),
+		);
+
+		$grouped = ( new Content_Selector() )->get_grouped_products();
+
+		$this->assertSame( array( 'Shirts', 'Mugs' ), array_keys( $grouped ) );
+		$this->assertSame( array( 'New shirt', 'Old shirt' ), array_map( static fn ( $p ) => $p->post_title, $grouped['Shirts'] ) );
+		$this->assertSame( array( 'Mug' ), array_map( static fn ( $p ) => $p->post_title, $grouped['Mugs'] ) );
+	}
+
+	public function test_get_grouped_products_prefers_yoast_primary_product_category(): void {
+		WPTestStub::$product_terms = array(
+			10 => new WP_Term( 10, 'Shirts', 1 ),
+			20 => new WP_Term( 20, 'Mugs', 1 ),
+		);
+		WPTestStub::$options['sevllms_product_category_order'] = array( 10, 20 );
+
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Cross-listed', 'post_date' => '2026-01-01' ) ),
+		);
+		WPTestStub::$post_terms = array(
+			1 => array( 'product_cat' => array( WPTestStub::$product_terms[10], WPTestStub::$product_terms[20] ) ),
+		);
+		WPTestStub::$post_meta[1] = array( '_yoast_wpseo_primary_product_cat' => '20' );
+
+		$grouped = ( new Content_Selector() )->get_grouped_products();
+
+		$this->assertSame( array( 'Mugs' ), array_keys( $grouped ) );
+	}
+
+	public function test_get_grouped_products_excludes_products_flagged_for_exclusion(): void {
+		WPTestStub::$posts = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Visible', 'post_date' => '2026-01-01' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => 'Hidden', 'post_date' => '2026-01-01' ) ),
+		);
+		WPTestStub::$post_meta[2] = array( Post_Meta::META_KEY => '1' );
+
+		$grouped = ( new Content_Selector() )->get_grouped_products();
+
+		$this->assertSame( array( Content_Selector::UNCATEGORIZED_KEY ), array_keys( $grouped ) );
+		$this->assertSame( array( 'Visible' ), array_map( static fn ( $p ) => $p->post_title, $grouped[ Content_Selector::UNCATEGORIZED_KEY ] ) );
+	}
 }
