@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.2.1 =
+* Shortened the short description to fit WordPress.org's 150-character limit; the previous one was truncated on import.
 
 = 1.2.0 =
 * Added WooCommerce support: if WooCommerce is active, published products are now listed in a `## Products` section, grouped by product category (drag & drop order in the settings screen, same as post categories), with the manual "Exclude from llms.txt" checkbox and SEO-plugin "noindex" detection applying to products too.
