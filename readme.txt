@@ -8,7 +8,7 @@ Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generates a structured llms.txt at /llms.txt, listing pages, posts, and (if WooCommerce is active) products, grouped by category, so AI assistants and LLMs can discover your site's content.
+Generates a structured llms.txt at /llms.txt, listing pages, posts, and products grouped by category, so AI assistants can find your content.
 
 == Description ==
 
