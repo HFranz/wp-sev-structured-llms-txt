@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.2.2 =
+* Added a "Support" and a star-rating link to the plugin's row on the Plugins list page.
 
 = 1.2.1 =
 * Shortened the short description to fit WordPress.org's 150-character limit; the previous one was truncated on import.
