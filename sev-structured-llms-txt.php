@@ -107,3 +107,22 @@ function sevllms_deactivate(): void {
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'sevllms_deactivate' );
+
+/**
+ * Adds "Support" and rating links to the plugin's row on the Plugins list page.
+ *
+ * @param array<int, string> $links Existing row meta links.
+ * @param string             $file  Plugin basename of the plugin the row meta is for.
+ * @return array<int, string>
+ */
+function sevllms_plugin_row_meta( array $links, string $file ): array {
+	if ( plugin_basename( __FILE__ ) !== $file ) {
+		return $links;
+	}
+
+	$links[] = '<a href="' . esc_url( 'https://wordpress.org/support/plugin/sev-structured-llms-txt/reviews/#new-post' ) . '" target="_blank" rel="noopener noreferrer" style="color:#ffb900;font-size:20px;text-decoration:none;">★★★★★</a>';
+	$links[] = '<a href="' . esc_url( 'https://wordpress.org/support/plugin/sev-structured-llms-txt/' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Support', 'sev-structured-llms-txt' ) . '</a>';
+
+	return $links;
+}
+add_filter( 'plugin_row_meta', 'sevllms_plugin_row_meta', 10, 2 );
