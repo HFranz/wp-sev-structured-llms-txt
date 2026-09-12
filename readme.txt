@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 1. Settings screen: tagline, category order, and live preview.
 
 == Changelog ==
+
+= 1.3.0 =
+* Pages are now listed oldest-modified first, with the static front page (if configured) pinned first, matching how Yoast SEO orders pages in its XML sitemap. Previously ordered by menu order, then title.
 
 = 1.2.2 =
 * Added a "Support" and a star-rating link to the plugin's row on the Plugins list page.

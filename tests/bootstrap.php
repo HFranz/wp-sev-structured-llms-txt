@@ -83,6 +83,7 @@ class WP_Post {
 	public string $post_excerpt = '';
 	public string $post_content = '';
 	public string $post_date = '';
+	public string $post_modified = '';
 	public int $menu_order = 0;
 	public string $post_type = 'post';
 	public string $post_status = 'publish';
@@ -168,6 +169,14 @@ function get_posts( array $args = array() ): array {
 			$posts,
 			static function ( WP_Post $a, WP_Post $b ) use ( $direction ): int {
 				return 'ASC' === $direction ? $a->post_date <=> $b->post_date : $b->post_date <=> $a->post_date;
+			}
+		);
+	} elseif ( 'modified' === $orderby ) {
+		$direction = strtoupper( (string) ( $args['order'] ?? 'DESC' ) );
+		usort(
+			$posts,
+			static function ( WP_Post $a, WP_Post $b ) use ( $direction ): int {
+				return 'ASC' === $direction ? $a->post_modified <=> $b->post_modified : $b->post_modified <=> $a->post_modified;
 			}
 		);
 	}

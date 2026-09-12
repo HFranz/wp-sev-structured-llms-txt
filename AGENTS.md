@@ -34,8 +34,12 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   aktiv, existiert die Taxonomie nicht; `get_terms()` liefert dann `WP_Error`, was hier zu einem leeren Array
   normalisiert wird – kein explizites „ist WooCommerce aktiv"-Gate nötig.
 - `includes/class-content-selector.php` – `Content_Selector`: `get_pages()` liefert alle veröffentlichten, nicht
-  ausgeschlossenen Seiten in Standard-Seitenreihenfolge (`menu_order`, dann Titel). „Ausgeschlossen" heißt: manuelles
-  `_sevllms_exclude`-Flag ODER von einem SEO-Plugin auf „noindex" gesetzt (siehe `Noindex_Resolver` oben).
+  ausgeschlossenen Seiten sortiert nach `post_modified` aufsteigend (am längsten nicht geändert zuerst), mit der
+  statischen Startseite (`show_on_front` = `page`, `page_on_front`) fest an erster Stelle, sofern konfiguriert und
+  in der Liste enthalten — das entspricht der Reihenfolge, die Yoast SEO in seiner XML-Sitemap für Seiten verwendet
+  (`get_first_links()`/`ORDER BY post_modified ASC` in `class-post-type-sitemap-provider.php`). „Ausgeschlossen"
+  heißt: manuelles `_sevllms_exclude`-Flag ODER von einem SEO-Plugin auf „noindex" gesetzt (siehe `Noindex_Resolver`
+  oben).
   `get_grouped_posts()` liefert Beiträge gruppiert nach primärer Kategorie (Yoast-Primary-Category falls gesetzt und
   gültig, sonst die Kategorie mit der niedrigsten Term-ID), in der von `Category_Order` vorgegebenen Reihenfolge, je
   Gruppe neueste zuerst. Unkategorisierte Beiträge landen unter dem Sonderschlüssel

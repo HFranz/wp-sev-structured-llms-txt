@@ -12,17 +12,44 @@ final class ContentSelectorTest extends TestCase {
 		WPTestStub::reset();
 	}
 
-	public function test_get_pages_returns_only_published_pages_in_menu_order(): void {
+	public function test_get_pages_returns_only_published_pages_oldest_modified_first(): void {
 		WPTestStub::$posts = array(
-			new WP_Post( array( 'ID' => 1, 'post_type' => 'page', 'post_status' => 'publish', 'menu_order' => 2, 'post_title' => 'Second' ) ),
-			new WP_Post( array( 'ID' => 2, 'post_type' => 'page', 'post_status' => 'publish', 'menu_order' => 1, 'post_title' => 'First' ) ),
-			new WP_Post( array( 'ID' => 3, 'post_type' => 'page', 'post_status' => 'draft', 'menu_order' => 0, 'post_title' => 'Draft' ) ),
-			new WP_Post( array( 'ID' => 4, 'post_type' => 'post', 'post_status' => 'publish', 'menu_order' => 0, 'post_title' => 'A Post' ) ),
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-17', 'post_title' => 'Newest' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-03', 'post_title' => 'Oldest' ) ),
+			new WP_Post( array( 'ID' => 3, 'post_type' => 'page', 'post_status' => 'draft', 'post_modified' => '2026-01-01', 'post_title' => 'Draft' ) ),
+			new WP_Post( array( 'ID' => 4, 'post_type' => 'post', 'post_status' => 'publish', 'post_modified' => '2026-01-01', 'post_title' => 'A Post' ) ),
 		);
 
 		$titles = array_map( static fn ( $post ) => $post->post_title, ( new Content_Selector() )->get_pages() );
 
-		$this->assertSame( array( 'First', 'Second' ), $titles );
+		$this->assertSame( array( 'Oldest', 'Newest' ), $titles );
+	}
+
+	public function test_get_pages_pins_the_static_front_page_first(): void {
+		WPTestStub::$options['show_on_front'] = 'page';
+		WPTestStub::$options['page_on_front']  = 2;
+		WPTestStub::$posts                    = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-03', 'post_title' => 'Oldest' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-15', 'post_title' => 'Home' ) ),
+			new WP_Post( array( 'ID' => 3, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-17', 'post_title' => 'Newest' ) ),
+		);
+
+		$titles = array_map( static fn ( $post ) => $post->post_title, ( new Content_Selector() )->get_pages() );
+
+		$this->assertSame( array( 'Home', 'Oldest', 'Newest' ), $titles );
+	}
+
+	public function test_get_pages_ignores_front_page_option_when_not_using_a_static_front_page(): void {
+		WPTestStub::$options['show_on_front'] = 'posts';
+		WPTestStub::$options['page_on_front']  = 2;
+		WPTestStub::$posts                    = array(
+			new WP_Post( array( 'ID' => 1, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-03', 'post_title' => 'Oldest' ) ),
+			new WP_Post( array( 'ID' => 2, 'post_type' => 'page', 'post_status' => 'publish', 'post_modified' => '2026-08-15', 'post_title' => 'Home' ) ),
+		);
+
+		$titles = array_map( static fn ( $post ) => $post->post_title, ( new Content_Selector() )->get_pages() );
+
+		$this->assertSame( array( 'Oldest', 'Home' ), $titles );
 	}
 
 	public function test_get_pages_excludes_posts_flagged_for_exclusion(): void {

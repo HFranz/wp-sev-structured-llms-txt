@@ -39,7 +39,9 @@ class Content_Selector {
 	}
 
 	/**
-	 * Returns every published, non-excluded page in standard page order.
+	 * Returns every published, non-excluded page, oldest-modified first, with
+	 * the static front page (if configured) pinned first — matching how Yoast
+	 * SEO orders pages in its XML sitemap.
 	 *
 	 * @return \WP_Post[]
 	 */
@@ -48,16 +50,45 @@ class Content_Selector {
 			array(
 				'post_type'      => 'page',
 				'post_status'    => 'publish',
-				'orderby'        => array(
-					'menu_order' => 'ASC',
-					'title'      => 'ASC',
-				),
+				'orderby'        => 'modified',
+				'order'          => 'ASC',
 				'posts_per_page' => -1,
 				'no_found_rows'  => true,
 			)
 		);
 
-		return array_values( array_filter( $pages, array( $this, 'is_included' ) ) );
+		$pages = array_values( array_filter( $pages, array( $this, 'is_included' ) ) );
+
+		return $this->with_front_page_first( $pages );
+	}
+
+	/**
+	 * Moves the configured static front page to the start of the list, if the
+	 * site uses one and it is present in the list.
+	 *
+	 * @param \WP_Post[] $pages Pages already ordered by modified date.
+	 * @return \WP_Post[]
+	 */
+	private function with_front_page_first( array $pages ): array {
+		if ( 'page' !== get_option( 'show_on_front' ) ) {
+			return $pages;
+		}
+
+		$front_page_id = (int) get_option( 'page_on_front' );
+
+		if ( $front_page_id <= 0 ) {
+			return $pages;
+		}
+
+		foreach ( $pages as $index => $page ) {
+			if ( $page->ID === $front_page_id ) {
+				unset( $pages[ $index ] );
+				array_unshift( $pages, $page );
+				break;
+			}
+		}
+
+		return array_values( $pages );
 	}
 
 	/**
