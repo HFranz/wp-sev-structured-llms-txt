@@ -82,7 +82,8 @@ Yes. The plugin can be activated network-wide or on individual sites. Each site 
 No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if installed, purely as an optional source for link descriptions. Without any of them, the post/page excerpt is used instead.
 
 == Screenshots ==
-1. Settings screen: tagline, category order, and live preview.
+1. Settings screen: tagline and post category order, with drag-and-drop ordering.
+2. Settings screen: full page, including the live llms.txt preview at the bottom.
 
 == Changelog ==
 
