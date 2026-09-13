@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="86" y1="70" x2="118" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="url(#bg)"/>
+
+  <!-- Document -->
+  <path d="M38 22 H74 L92 40 V102 A6 6 0 0 1 86 108 H38 A6 6 0 0 1 32 102 V28 A6 6 0 0 1 38 22 Z"
+        fill="#FFFFFF" opacity="0.97"/>
+  <path d="M74 22 L92 40 H78 A4 4 0 0 1 74 36 V22 Z" fill="#C7D2FE"/>
+
+  <!-- Structured content lines: title bar + hierarchy of list lines -->
+  <rect x="42" y="52" width="34" height="6" rx="3" fill="#4338CA"/>
+  <rect x="42" y="66" width="4" height="4" rx="2" fill="#7C3AED"/>
+  <rect x="50" y="65" width="30" height="6" rx="3" fill="#C7D2FE"/>
+  <rect x="42" y="78" width="4" height="4" rx="2" fill="#7C3AED"/>
+  <rect x="50" y="77" width="24" height="6" rx="3" fill="#C7D2FE"/>
+  <rect x="42" y="90" width="4" height="4" rx="2" fill="#7C3AED"/>
+  <rect x="50" y="89" width="28" height="6" rx="3" fill="#C7D2FE"/>
+
+  <!-- AI spark accent -->
+  <path d="M102 66 L106.2 79.8 L120 84 L106.2 88.2 L102 102 L97.8 88.2 L84 84 L97.8 79.8 Z"
+        fill="url(#spark)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+</svg>
