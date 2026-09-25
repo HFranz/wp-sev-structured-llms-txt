@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, multisite, categories
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,8 +19,8 @@ No physical file is ever written to disk. The document is rendered on request th
 **What the generated document looks like**
 
 * A `# Site Name` heading and a `> tagline` blockquote (your own tagline, or the site's tagline by default).
+* Optionally, one or more `> Label version: [URL](URL)` lines directly below the tagline, linking to this llms.txt on other sites in your network (e.g. one site per language).
 * A `## Pages` section listing every published page, each as `- [Title](URL): Description`.
-* Optionally, one or more `> Label version: URL` lines linking to this llms.txt on other sites in your network (e.g. one site per language).
 * A `## Posts` section with one `### Category Name` subsection per post category, newest posts first, in an order you control.
 * If WooCommerce is active, a `## Products` section with one `### Category Name` subsection per product category, newest products first, in an order you control.
 
@@ -86,6 +86,10 @@ No. Yoast SEO, Rank Math, SEOPress, and All in One SEO are used automatically if
 2. Settings screen: full page, including the live llms.txt preview at the bottom.
 
 == Changelog ==
+
+= 1.4.0 =
+* Titles, category names, and descriptions are now decoded and stripped of markup before being written to llms.txt: WordPress-escaped characters (e.g. "AI &amp; Software" or a `wptexturize()`-inserted "&#8211;" or "&hellip;") and soft hyphens (`&shy;`) no longer leak into the output as literal HTML entities.
+* Moved the alternate-language-version link to directly below the tagline, before `## Pages`, matching the llms.txt specification's placement of blockquote metadata right after the H1; it's now also written as a proper Markdown link, `[URL](URL)`, instead of a bare URL.
 
 = 1.3.0 =
 * Pages are now listed oldest-modified first, with the static front page (if configured) pinned first, matching how Yoast SEO orders pages in its XML sitemap. Previously ordered by menu order, then title.

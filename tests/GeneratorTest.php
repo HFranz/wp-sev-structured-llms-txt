@@ -47,11 +47,11 @@ final class GeneratorTest extends TestCase {
 
 		> Wir entwickeln digitale Systeme.
 
+		> English version: [https://site2.example.com/llms.txt](https://site2.example.com/llms.txt)
+
 		## Pages
 
 		- [Start](https://example.com/start/): Homepage description
-
-		> English version: https://site2.example.com/llms.txt
 
 		## Posts
 
@@ -61,6 +61,40 @@ final class GeneratorTest extends TestCase {
 		MARKDOWN;
 
 		$this->assertSame( $expected . "\n", ( new Generator() )->generate() );
+	}
+
+	public function test_decodes_html_entities_and_strips_soft_hyphens(): void {
+		WPTestStub::$terms = array(
+			10 => new WP_Term( 10, 'AI &amp; Software Development', 1 ),
+		);
+		WPTestStub::$options[ Category_Order::OPTION_NAME ] = array( 10 );
+
+		WPTestStub::$posts = array(
+			new WP_Post(
+				array(
+					'ID'           => 1,
+					'post_type'    => 'post',
+					'post_status'  => 'publish',
+					'post_title'   => 'WordPress Core &#8211; Not&shy;Just Plugins',
+					'post_name'    => 'wp-core',
+					'post_date'    => '2026-06-01',
+					'post_excerpt' => 'modern web&hellip;',
+				)
+			),
+		);
+		WPTestStub::$post_categories = array(
+			1 => array( WPTestStub::$terms[10] ),
+		);
+
+		$content = ( new Generator() )->generate();
+
+		$this->assertStringContainsString( '### AI & Software Development', $content );
+		$this->assertStringContainsString( '- [WordPress Core – NotJust Plugins](https://example.com/wp-core/): modern web…', $content );
+		$this->assertStringNotContainsString( '&amp;', $content );
+		$this->assertStringNotContainsString( '&#8211;', $content );
+		$this->assertStringNotContainsString( '&shy;', $content );
+		$this->assertStringNotContainsString( '&hellip;', $content );
+		$this->assertStringNotContainsString( "\u{00AD}", $content );
 	}
 
 	public function test_omits_empty_sections(): void {

@@ -44,14 +44,14 @@ class Generator {
 	public function generate(): string {
 		$sections = array( $this->intro_section() );
 
-		$pages_section = $this->pages_section();
-		if ( '' !== $pages_section ) {
-			$sections[] = $pages_section;
-		}
-
 		$alternates_section = $this->alternates_section();
 		if ( '' !== $alternates_section ) {
 			$sections[] = $alternates_section;
+		}
+
+		$pages_section = $this->pages_section();
+		if ( '' !== $pages_section ) {
+			$sections[] = $pages_section;
 		}
 
 		$posts_section = $this->posts_section();
@@ -80,18 +80,20 @@ class Generator {
 	 * @return string
 	 */
 	private function intro_section(): string {
-		$title   = get_bloginfo( 'name' );
+		$title   = $this->clean( get_bloginfo( 'name' ) );
 		$tagline = trim( (string) get_option( self::OPTION_TAGLINE, '' ) );
 
 		if ( '' === $tagline ) {
 			$tagline = get_bloginfo( 'description' );
 		}
 
+		$tagline = $this->clean( $tagline );
+
 		$lines = array( '# ' . $title );
 
-		if ( '' !== trim( (string) $tagline ) ) {
+		if ( '' !== $tagline ) {
 			$lines[] = '';
-			$lines[] = '> ' . trim( (string) $tagline );
+			$lines[] = '> ' . $tagline;
 		}
 
 		return implode( "\n", $lines );
@@ -134,8 +136,10 @@ class Generator {
 		$lines = array();
 
 		foreach ( $alternates as $label => $url ) {
-			/* translators: 1: language label, e.g. "English", 2: URL. */
-			$lines[] = sprintf( __( '> %1$s version: %2$s', 'sev-structured-llms-txt' ), $label, $url );
+			$link = sprintf( '[%1$s](%1$s)', $url );
+
+			/* translators: 1: language label, e.g. "English", 2: markdown link to the alternate llms.txt. */
+			$lines[] = sprintf( __( '> %1$s version: %2$s', 'sev-structured-llms-txt' ), $this->clean( $label ), $link );
 		}
 
 		return implode( "\n", $lines );
@@ -158,7 +162,7 @@ class Generator {
 		foreach ( $grouped as $group_name => $posts ) {
 			$heading = Content_Selector::UNCATEGORIZED_KEY === $group_name
 				? __( 'More posts', 'sev-structured-llms-txt' )
-				: $group_name;
+				: $this->clean( $group_name );
 
 			$lines[] = '';
 			$lines[] = '### ' . $heading;
@@ -191,7 +195,7 @@ class Generator {
 		foreach ( $grouped as $group_name => $products ) {
 			$heading = Content_Selector::UNCATEGORIZED_KEY === $group_name
 				? __( 'More products', 'sev-structured-llms-txt' )
-				: $group_name;
+				: $this->clean( $group_name );
 
 			$lines[] = '';
 			$lines[] = '### ' . $heading;
@@ -212,9 +216,9 @@ class Generator {
 	 * @return string
 	 */
 	private function link_line( \WP_Post $post ): string {
-		$title       = get_the_title( $post );
+		$title       = $this->clean( get_the_title( $post ) );
 		$url         = get_permalink( $post );
-		$description = $this->description_resolver->resolve( $post );
+		$description = $this->clean( $this->description_resolver->resolve( $post ) );
 
 		$line = sprintf( '- [%s](%s)', $title, $url );
 
@@ -223,5 +227,22 @@ class Generator {
 		}
 
 		return $line;
+	}
+
+	/**
+	 * Strips tags, decodes HTML entities (WordPress stores "&" as "&#038;" in
+	 * titles/terms, and wptexturize() turns "-" into "&#8211;" etc.), removes
+	 * soft hyphens, and collapses whitespace, so an LLM reading the output sees
+	 * the same plain text a human would, not markup-escaped source text.
+	 *
+	 * @param string $text Raw text pulled from post/term data.
+	 * @return string
+	 */
+	private function clean( string $text ): string {
+		$text = wp_strip_all_tags( $text );
+		$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$text = str_replace( "\u{00AD}", '', $text );
+
+		return trim( (string) preg_replace( '/\s+/u', ' ', $text ) );
 	}
 }
