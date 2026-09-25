@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SEV Structured llms.txt
+ * Plugin Name: Structured llms.txt
  * Plugin URI: https://github.com/HFranz/wp-sev-structured-llms-txt
  * Description: Generates a structured llms.txt at /llms.txt, listing pages, posts, and products grouped by category, so AI assistants can find your content.
  * Version: 1.4.0

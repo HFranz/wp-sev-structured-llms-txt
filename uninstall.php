@@ -1,6 +1,6 @@
 <?php
 /**
- * Uninstall routine for SEV Structured llms.txt.
+ * Uninstall routine for Structured llms.txt.
  *
  * Called automatically by WordPress when the plugin is deleted via the admin UI.
  * Removes the plugin's own options and post meta, on every site of a Multisite
