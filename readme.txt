@@ -4,7 +4,7 @@ Tags: llms.txt, ai, seo, woocommerce, multisite
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -129,6 +129,9 @@ Go to **Settings → Permalinks** and click "Save Changes" once. This refreshes 
 2. Settings screen: full page, including the live llms.txt preview at the bottom.
 
 == Changelog ==
+
+= 1.5.0 =
+* Added a dismissible admin notice asking for a WordPress.org review, shown once a site has used the plugin for at least two weeks.
 
 = 1.4.0 =
 * Titles, category names, and descriptions are now decoded and stripped of markup before being written to llms.txt: WordPress-escaped characters (e.g. "AI &amp; Software" or a `wptexturize()`-inserted "&#8211;" or "&hellip;") and soft hyphens (`&shy;`) no longer leak into the output as literal HTML entities.

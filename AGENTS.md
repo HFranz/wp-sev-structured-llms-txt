@@ -84,6 +84,16 @@ Platte; der Endpoint wird per Rewrite-Rule live gerendert und per Transient geca
   `add_option_{$option}` statt `update_option_{$option}`) oder ob eine Checkbox-Liste komplett leer abgeschickt
   wurde (dann feuert für dieses Feld gar kein Options-Hook). Ein Hook auf `update_option_{$option}` je Setting in
   `Cache::register()` würde beide Fälle verpassen, deshalb sitzt die Invalidierung hier statt dort.
+- `includes/class-review-notice.php` – `Review_Notice`: zeigt einmalig einen abweisbaren `admin_notices`-Hinweis
+  mit Bitte um eine WordPress.org-Bewertung, frühestens `DELAY` (14 Tage) nach der ersten Aktivierung
+  (`sevllms_first_activated_at`), unabhängig vom Dismiss-Status per `sevllms_review_notice_dismissed`.
+  `record_first_activation()` ist statisch und wird sowohl aus `sevllms_activate()` (Activation-Hook, greift beim
+  Erstinstall sofort) als auch – als Fallback für den weitaus häufigeren Fall eines normalen Updates, bei dem
+  `register_activation_hook()` nicht feuert, weil WordPress das Plugin durchgehend aktiv hält und nur Dateien
+  austauscht – über `init` aufgerufen, analog zum `HMFW_REVIEW_NOTICE_DELAY`-Muster in
+  `holiday-mode-for-woocommerce`. Das Dismiss-Handling (`maybe_dismiss()`) läuft auf `admin_init`, vor jeder
+  Ausgabe, prüft Nonce (`sevllms_dismiss_review_notice`) und `manage_options`, und leitet per `wp_safe_redirect()`
+  auf die bereinigte URL zurück.
 
 **Datenfluss:** Request auf `/llms.txt` → `Rewrite::maybe_serve()` → `Cache::get()` (Cache-Hit: sofort ausliefern)
 → bei Cache-Miss `Generator::generate()` → `Content_Selector` + `Alternate_Sites` + `Description_Resolver` bauen

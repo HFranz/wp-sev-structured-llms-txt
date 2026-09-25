@@ -3,7 +3,7 @@
  * Plugin Name: Structured llms.txt
  * Plugin URI: https://github.com/HFranz/wp-sev-structured-llms-txt
  * Description: Generates a structured llms.txt at /llms.txt, listing pages, posts, and products grouped by category, so AI assistants can find your content.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: Heinrich Franz
@@ -20,13 +20,14 @@
 use SevStructuredLlmsTxt\Admin_Settings;
 use SevStructuredLlmsTxt\Cache;
 use SevStructuredLlmsTxt\Post_Meta;
+use SevStructuredLlmsTxt\Review_Notice;
 use SevStructuredLlmsTxt\Rewrite;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-const SEVLLMS_VERSION = '1.4.0';
+const SEVLLMS_VERSION = '1.5.0';
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-description-resolver.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-category-order.php';
@@ -39,6 +40,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-cache.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-rewrite.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-post-meta.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-admin-settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-review-notice.php';
 
 add_action(
 	'plugins_loaded',
@@ -51,17 +53,22 @@ add_action(
 
 		if ( is_admin() ) {
 			( new Admin_Settings() )->register();
+			( new Review_Notice() )->register();
 		}
 	}
 );
 
 /**
- * Registers the rewrite rule and flushes rewrite rules so /llms.txt works immediately.
+ * Registers the rewrite rule and flushes rewrite rules so /llms.txt works
+ * immediately, and records the first-activation time used to delay the
+ * review-request admin notice (see Review_Notice).
  *
  * @param bool $network_wide Whether the plugin is being network-activated.
  * @return void
  */
 function sevllms_activate( bool $network_wide ): void {
+	Review_Notice::record_first_activation();
+
 	if ( is_multisite() && $network_wide ) {
 		foreach ( get_sites( array( 'fields' => 'ids' ) ) as $site_id ) {
 			switch_to_blog( (int) $site_id );

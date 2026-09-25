@@ -22,6 +22,8 @@ function sevllms_uninstall_current_site(): void {
 	delete_option( 'sevllms_tagline' );
 	delete_option( 'sevllms_category_order' );
 	delete_option( 'sevllms_alternate_sites' );
+	delete_option( 'sevllms_first_activated_at' );
+	delete_option( 'sevllms_review_notice_dismissed' );
 	delete_transient( 'sevllms_cache' );
 
 	global $wpdb;
